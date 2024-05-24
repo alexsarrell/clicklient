@@ -1,0 +1,40 @@
+@startuml
+actor Пользователь as u
+boundary "JVM" as code
+participant Сканер as sc
+participant Сборщик as mp
+participant ДБКонтекст as ctx
+participant Клиент as client
+database Clickhouse as ch
+
+u -> code : bootRun (старт)
+code -> sc : init event
+activate sc
+sc -> code : scan()
+activate code
+code -> sc : результат
+deactivate code
+sc -> mp : register()
+activate mp
+mp -> mp : сборка
+mp -> ctx : таблицы
+activate ctx
+deactivate mp
+ctx -> sc : context
+sc -> client : init()
+ctx -> client : таблицы
+activate client
+client -> ch : createTables
+sc -> u : Объект ClickhouseClient
+deactivate sc
+u -> client : insert()
+client -> ctx : getObjectView()
+ctx -> client : result
+
+alt если Объект - таблица
+    client -> ch : insert()
+else иначе
+    client -> u : Объект не зарегистрирован
+end
+
+@enduml
