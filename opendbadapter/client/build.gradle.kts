@@ -21,6 +21,7 @@ repositories {
 }
 
 dependencies {
+    implementation("tanvd.aorm:aorm:1.1.7")
     implementation(project(":opendbadapter:core"))
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))

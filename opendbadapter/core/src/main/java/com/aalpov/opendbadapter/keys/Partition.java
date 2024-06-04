@@ -3,9 +3,14 @@ package com.aalpov.opendbadapter.keys;
 import com.aalpov.opendbadapter.Expression;
 
 public class Partition {
-    Expression expression;
+  Expression expression;
 
-    public Partition(Expression expression) {
-        this.expression = expression;
-    }
+  public Partition(Expression expression) {
+    this.expression = expression;
+  }
+
+  @Override
+  public String toString() {
+    return expression.toString();
+  }
 }

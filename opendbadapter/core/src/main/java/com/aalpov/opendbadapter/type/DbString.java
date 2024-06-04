@@ -2,13 +2,12 @@ package com.aalpov.opendbadapter.type;
 
 public class DbString extends DbType<String> {
 
-    public DbString() {
-        super();
-        this.javaType = String.class;
-    }
+  public DbString() {
+    super(String.class, "");
+  }
 
-    @Override
-    public String toString() {
-        return "String";
-    }
+  @Override
+  public String toString() {
+    return "String";
+  }
 }

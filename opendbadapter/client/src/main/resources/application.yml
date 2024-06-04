@@ -2,3 +2,5 @@ clickhouse:
   url: "jdbc:clickhouse://172.30.71.31:8123/default?compress=0"
   username: "default"
   password: "admin"
+  hikari:
+

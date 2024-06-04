@@ -1,1 +1,3 @@
-const val springBootVersion = "3.1.0"
+object Versions {
+    const val springBootVersion = "3.1.0"
+}

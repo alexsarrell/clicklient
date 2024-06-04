@@ -1,3 +1,10 @@
 package com.aalpov.opendbadapter.service;
 
-public interface DatabaseClient {}
+import java.util.Collection;
+
+public interface DatabaseClient {
+
+  void insert(Object row);
+
+  void batchInsert(Collection<Object> rows);
+}

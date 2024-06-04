@@ -6,40 +6,39 @@ import java.util.Map;
 
 public class Row {
 
-    Map<String, Object> row;
+  Map<String, Object> row;
 
-    public Row(Map<String, Object> row) {
-        this.row = row;
-    }
+  public Row(Map<String, Object> row) {
+    this.row = row;
+  }
 
-    public String keysToSqlString() {
-        var keys = row.keySet().stream().toList();
-        StringBuilder builder = new StringBuilder();
-        builder.append("(");
-        builder.append(String.join(",", keys));
-        builder.append(")");
-        builder.append(" VALUES ");
+  public String keysToSqlString() {
+    var keys = row.keySet().stream().toList();
 
-        return builder.toString();
-    }
+    return "(" +
+            String.join(",", keys) +
+            ")" +
+            " VALUES ";
+  }
 
-    public String valuesToSqlString() {
-        List<String> keys = row.keySet().stream().toList();
-        StringBuilder builder = new StringBuilder();
-        List<String> values = new ArrayList<>();
+  public String valuesToSqlString() {
+    List<String> keys = row.keySet().stream().toList();
+    StringBuilder builder = new StringBuilder();
+    List<String> values = new ArrayList<>();
 
-        keys.forEach(key -> {
-            var value = row.get(key);
-            if (value instanceof String) {
-                values.add("'" + value + "'");
-            } else {
-                values.add(value.toString());
-            }
+    keys.forEach(
+        key -> {
+          var value = row.get(key);
+          if (value instanceof String) {
+            values.add("'" + value + "'");
+          } else {
+            values.add(value.toString());
+          }
         });
 
-        builder.append("(");
-        builder.append(String.join(",", values));
-        builder.append(")");
-        return builder.toString();
-    }
+    builder.append("(");
+    builder.append(String.join(",", values));
+    builder.append(")");
+    return builder.toString();
+  }
 }

@@ -1,6 +1,6 @@
 package com.aalpov.opendbadapter;
 
-import com.aalpov.opendbadapter.service.impl.ClickhouseDatabaseContext;
+import com.aalpov.opendbadapter.service.ClickhouseDatabaseContext;
 import com.aalpov.opendbadapter.service.DatabaseContext;
 import com.aalpov.opendbadapter.table.ClickhouseTable;
 import org.junit.jupiter.api.Test;

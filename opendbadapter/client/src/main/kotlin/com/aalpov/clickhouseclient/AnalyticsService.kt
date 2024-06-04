@@ -26,6 +26,27 @@ class AnalyticsService(private val clickhouseClient: BaseClickhouseClient) {
                 Instant.now().toEpochMilli()
             )
         )
+
+        clickhouseClient.batchInsert(
+            IncomingCall(
+                UUID.randomUUID().toString(),
+                UUID.randomUUID().toString(),
+                Random.nextLong(0L, 1000000L),
+                "+791944499922",
+                Random.nextBoolean(),
+                Random.nextUBytes(1)[0].toByte(),
+                Instant.now().toEpochMilli()
+            ),
+            IncomingCall(
+                UUID.randomUUID().toString(),
+                UUID.randomUUID().toString(),
+                Random.nextLong(0L, 1000000L),
+                "+791944499922",
+                Random.nextBoolean(),
+                Random.nextUBytes(1)[0].toByte(),
+                Instant.now().toEpochMilli()
+            )
+        )
     }
 
     @OptIn(ExperimentalUnsignedTypes::class)

@@ -2,13 +2,16 @@ package com.aalpov.opendbadapter.type;
 
 public abstract class DbFloat extends DbNumericType<Float> {
 
-    public DbFloat() {
-        this.defaultValue = 0f;
-        this.javaType = Float.TYPE;
-    }
+  public DbFloat() {
+    super(Float.TYPE, 0f);
+  }
 
-    @Override
-    public String toSqlName() {
-        return super.toSqlName();
-    }
+  public DbFloat(Float defaultValue) {
+    super(Float.TYPE, defaultValue);
+  }
+
+  @Override
+  public String toSqlName() {
+    return super.toSqlName();
+  }
 }

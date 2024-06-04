@@ -4,8 +4,7 @@ import java.util.UUID;
 
 public class DbUuid extends DbType<UUID> {
 
-    public DbUuid() {
-        super();
-        this.javaType = UUID.class;
-    }
+  public DbUuid() {
+    super(UUID.class);
+  }
 }

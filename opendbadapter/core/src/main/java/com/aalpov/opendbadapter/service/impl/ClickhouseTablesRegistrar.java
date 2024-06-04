@@ -1,33 +1,30 @@
 package com.aalpov.opendbadapter.service.impl;
 
-import com.aalpov.opendbadapter.Expression;
-import com.aalpov.opendbadapter.annotations.OrderedBy;
 import com.aalpov.opendbadapter.annotations.Table;
-import com.aalpov.opendbadapter.keys.Order;
-import com.aalpov.opendbadapter.model.TableName;
 import com.aalpov.opendbadapter.service.DatabaseContext;
+import com.aalpov.opendbadapter.service.TablesRegistrar;
 import com.aalpov.opendbadapter.table.ClickhouseTable;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.util.*;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
-class ClickhouseTablesRegistrar {
+public class ClickhouseTablesRegistrar<T extends ClickhouseTable> implements TablesRegistrar<T> {
 
   ClassPathScanningCandidateComponentProvider scanner;
 
-  ClickhouseTableMapper mapper;
+  ClickhouseTableMapper<T> mapper;
 
-  DatabaseContext context;
+  DatabaseContext<T> context;
 
-  ClickhouseTablesRegistrar(ClickhouseTableMapper tableMapper, DatabaseContext context) {
+  public ClickhouseTablesRegistrar(
+      ClickhouseTableMapper<T> tableMapper, DatabaseContext<T> context) {
     this.scanner = new ClassPathScanningCandidateComponentProvider(false);
     this.mapper = tableMapper;
     this.context = context;
   }
 
+  @Override
   public void scanAndRegister(String[] basePackages) {
     Set<BeanDefinition> definitions = new HashSet<>();
 
@@ -38,6 +35,11 @@ class ClickhouseTablesRegistrar {
     registerTables(definitions);
   }
 
+  @Override
+  public DatabaseContext<T> getContext() {
+    return context;
+  }
+
   private Set<BeanDefinition> findTableAnnotatedClasses(String basePackage) {
 
     scanner.addIncludeFilter(new AnnotationTypeFilter(Table.class));
@@ -46,48 +48,6 @@ class ClickhouseTablesRegistrar {
   }
 
   private void registerTables(Set<BeanDefinition> definitions) {
-    List<ClickhouseTable> tables = new ArrayList<>();
-    definitions.forEach(
-        bd -> {
-          String className = bd.getBeanClassName();
-          try {
-            Class<?> clazz = Class.forName(className);
-
-            var tableAnnotation = clazz.getAnnotation(Table.class);
-            var expressionAnnotation = clazz.getAnnotation(OrderedBy.class);
-
-            var fields = clazz.getDeclaredFields();
-
-            Expression expression;
-            if (expressionAnnotation != null) {
-              if (expressionAnnotation.columns().length != 0) {
-                expression = new Expression(expressionAnnotation.columns());
-              } else {
-                expression = new Expression(expressionAnnotation.expression());
-              }
-            } else {
-              expression = new Expression("");
-            }
-            // var partitionFields = annotatedBy(PartitionBy.class, fields);
-            // var orderingFields = annotatedBy(OrderedBy.class, fields);
-            // var indexes = annotatedBy(Indexed.class, fields);
-            ClickhouseTable table =
-                mapper.register(
-                    new TableName(tableAnnotation.name()), fields, new Order(expression), clazz);
-
-            tables.add(table);
-
-            System.out.println("New table has been registered: " + table.toString());
-          } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-          }
-        });
-
-    context.register(tables);
-  }
-
-  private <T extends Annotation> Field[] annotatedBy(Class<T> annotation, Field[] fields) {
-    return (Field[])
-        Arrays.stream(fields).filter(field -> field.isAnnotationPresent(annotation)).toArray();
+    context.register(mapper.mapTables(definitions));
   }
 }

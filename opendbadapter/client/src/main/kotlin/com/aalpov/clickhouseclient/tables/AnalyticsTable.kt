@@ -1,17 +1,21 @@
 package com.aalpov.clickhouseclient.tables
 
 import com.aalpov.opendbadapter.annotations.OrderedBy
+import com.aalpov.opendbadapter.annotations.PartitionBy
 import com.aalpov.opendbadapter.annotations.Table
+import java.util.Date
 
 @Table(name = "stateTransition")
 @OrderedBy(columns = ["userId", "sessionId"])
+@PartitionBy(expression = "toYYYYMM(eventDate)")
 class StateTransition(
     val name: String,
     val userId: String,
-    val sessionId: String
+    val sessionId: String,
+    val eventDate: Date
 )
 
-@Table(name = "incomingCall")
+@Table(name = "analytics_table")
 @OrderedBy(columns = ["userId", "sessionId"])
 class IncomingCall(
     val userId: String,

@@ -1,4 +1,4 @@
-package com.aalpov.opendbadapter.model;
+package com.aalpov.opendbadapter.table;
 
 public record TableName(String value) {
 }

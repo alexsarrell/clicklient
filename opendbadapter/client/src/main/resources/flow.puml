@@ -22,11 +22,14 @@ activate ctx
 deactivate mp
 ctx -> sc : context
 sc -> client : init()
-ctx -> client : таблицы
 activate client
+ctx -> client : таблицы
 client -> ch : createTables
 sc -> u : Объект ClickhouseClient
 deactivate sc
+
+== Этап сохранения объекта в БД ==
+
 u -> client : insert()
 client -> ctx : getObjectView()
 ctx -> client : result
@@ -37,4 +40,235 @@ else иначе
     client -> u : Объект не зарегистрирован
 end
 
+@enduml
+
+Диаграмма компонентов
+
+@startuml
+package "ClickHouse Library" {
+    [ClickHouseClient] --> [ConnectionPool]
+    [ConnectionPool] --> [ClickHouseConnection]
+    [ClickHouseConnection] --> [ClickHouseServer]
+}
+
+package "Client Application" {
+    [Client] --> [ClickHouseClient]
+}
+@enduml
+
+Диаграмма классов
+
+@startuml
+
+interface TablesRegistrar {
+    + scanAndRegister(String[] basePackages)
+    + getContext(): DatabaseContext
+}
+
+class ClickhouseTablesRegistrar {
+    + scanAndRegister(String[] basePackages)
+    + getContext(): DatabaseContext
+    - registerTables()
+}
+
+interface DatabaseClient {
+    + insert(Object row)
+    + batchInsert(Object[] rows)
+}
+
+class ClickHouseClient {
+    + insert(Object row)
+    + batchInsert(Object[] rows)
+    - objectToMap(Object obj): Map<String, Object>
+}
+
+DatabaseClient <|.. ClickHouseClient
+
+class HikariConnectionPool {
+    + getConnection(): ClickHouseConnection
+    + releaseConnection(conn: ClickHouseConnection)
+}
+
+interface DatabaseContext {
+    + insert(Row row, Table table)
+    + batchInsert(Row[] rows, Table table)
+    + executeQuery(String query)
+    + register(Table[] tables)
+    + initialize(Properties properties)
+    + getMirror(Class class)
+}
+
+class AbstractDatabaseContext {
+    + insert(Row row, Table table)
+    + batchInsert(Row[] rows, Table table)
+    + executeQuery(String query)
+    + register(Table[] tables)
+    + initialize(Properties properties)
+    + getMirror(Class class)
+    + createTable(Table table): String
+    + insertQuery(Row row, Table table): String
+
+    # withConnection(ConnectionConsumer consumer)
+    # init()
+    - getConnection()
+}
+
+class ClickhouseDatabaseContext {
+    + createTable(Table table): String
+    + insertQuery(Row row, Table table): String
+    + batchInsertQuery(Row row, Table table): String
+}
+
+interface TableMapper {
+    + mapTables(BeanDefinition[] definitions): Tables[]
+    + buildTable(TableName name, Field[] fields, ...): Table
+}
+
+class ClickhouseTableMapper {
+    + mapTables(BeanDefinition[] definitions): Tables[]
+    + buildTable(TableName name, Field[] fields, ...): Table
+}
+
+package "Clickhouse types" {}
+
+TablesRegistrar <|.. ClickhouseTablesRegistrar
+DatabaseContext <|.. AbstractDatabaseContext
+AbstractDatabaseContext <|-- ClickhouseDatabaseContext
+ClickHouseClient --> AbstractDatabaseContext
+AbstractDatabaseContext --> HikariConnectionPool
+ClickhouseTablesRegistrar --> DatabaseContext : register()
+ClickhouseTableMapper --> "Clickhouse types"
+TableMapper <|.. ClickhouseTableMapper
+ClickhouseTablesRegistrar o-- TableMapper
+
+@enduml
+
+@startuml
+package "Clickhouse types" {
+    class DbType {
+        # javaType: Class
+        - defaultValue: T
+        + toSqlName(): String
+    }
+    class DbNumericType {
+        # javaType: Class
+        - defaultValue: T
+        + toSqlName(): String
+    }
+    class DbInt {
+        # javaType: Class
+        - defaultValue: T
+        + toSqlName(): String
+    }
+    class DbInt8 {
+        # javaType: Class
+        - defaultValue: T
+        + toSqlName(): String
+    }
+    class DbInt16 {
+        # javaType: Class
+        - defaultValue: T
+        + toSqlName(): String
+    }
+    class DbInt32 {
+        # javaType: Class
+        - defaultValue: T
+        + toSqlName(): String
+    }
+    class DbInt64 {
+        # javaType: Class
+        - defaultValue: T
+        + toSqlName(): String
+    }
+    class DbInt128 {
+        # javaType: Class
+        - defaultValue: T
+        + toSqlName(): String
+    }
+    class DbInt256 {
+        # javaType: Class
+        - defaultValue: T
+        + toSqlName(): String
+    }
+    class DbFloat {
+        # javaType: Class
+        - defaultValue: T
+        + toSqlName(): String
+    }
+    class DbFloat32 {
+        # javaType: Class
+        - defaultValue: T
+        + toSqlName(): String
+    }
+    class DbFloat64 {
+        # javaType: Class
+        - defaultValue: T
+        + toSqlName(): String
+    }
+    class DbString {
+        # javaType: Class
+        - defaultValue: T
+        + toSqlName(): String
+    }
+    class DbMap {
+        # javaType: Class
+        - defaultValue: T
+        + toSqlName(): String
+    }
+    class DbUUID {
+        # javaType: Class
+        - defaultValue: T
+        + toSqlName(): String
+    }
+    class DbArray {
+        # javaType: Class
+        - defaultValue: T
+        + toSqlName(): String
+    }
+}
+DbType <|-- DbNumericType
+DbNumericType <|-- DbInt
+DbInt <|-- DbInt8
+DbInt <|-- DbInt16
+DbInt <|-- DbInt32
+DbInt <|-- DbInt64
+DbInt <|-- DbInt128
+DbInt <|-- DbInt256
+DbNumericType <|-- DbFloat
+DbFloat <|-- DbFloat32
+DbFloat <|-- DbFloat64
+DbType <|-- DbString
+DbType <|-- DbUUID
+DbType <|-- DbArray
+DbType <|-- DbMap
+@enduml
+
+@startuml
+
+interface ClickhouseTablesScan {
+    + basePackages(): String[]
+}
+
+interface Comment {
+    + comment(): String
+}
+
+interface Convert {
+    + converter(): Class
+}
+
+interface OrderedBy {
+    + expression(): String
+    + columns(): String[]
+}
+
+interface PartitionBy {
+    + expression(): String
+    + columns(): String[]
+}
+
+interface Table {
+    + name(): String
+    + engine(): String
+}
 @enduml

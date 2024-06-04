@@ -1,8 +1,7 @@
 package com.aalpov.opendbadapter.type;
 
-import java.util.Collection;
-
-public class DbArray<T extends DbType<?>> extends DbType<Collection<T>> {
+/*
+public class DbArray extends DbType<Collection<DbType<?>>> {
 
     public DbArray() {
         super();
@@ -11,6 +10,7 @@ public class DbArray<T extends DbType<?>> extends DbType<Collection<T>> {
     public DbType<T> genericType;
 
     public DbArray(DbType<T> genericType) {
+        super();
         this.genericType = genericType;
     }
 
@@ -19,3 +19,4 @@ public class DbArray<T extends DbType<?>> extends DbType<Collection<T>> {
         return "array(" + genericType.toSqlName() + ")";
     }
 }
+*/

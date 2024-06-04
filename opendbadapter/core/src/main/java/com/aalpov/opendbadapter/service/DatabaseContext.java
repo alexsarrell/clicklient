@@ -2,22 +2,21 @@ package com.aalpov.opendbadapter.service;
 
 import com.aalpov.opendbadapter.Row;
 import com.aalpov.opendbadapter.configuration.DatabaseProperties;
-import com.aalpov.opendbadapter.table.ClickhouseTable;
-
+import com.aalpov.opendbadapter.table.AbstractTable;
 import java.util.Collection;
 import java.util.List;
 
-public interface DatabaseContext {
+public interface DatabaseContext<T extends AbstractTable> {
 
-    void insert(Row row, ClickhouseTable table);
+  void insert(Row row, T table);
 
-    void batchInsert(List<Row> rows, ClickhouseTable table);
+  void batchInsert(List<Row> rows, T table);
 
-    void executeQuery(String query);
+  void executeQuery(String query);
 
-    void register(Collection<ClickhouseTable> tables);
+  void register(Collection<T> tables);
 
-    void initialize(DatabaseProperties properties);
+  void initialize(DatabaseProperties properties);
 
-    ClickhouseTable getMirror(Class<?> clazz);
+  T getMirror(Class<?> clazz);
 }
