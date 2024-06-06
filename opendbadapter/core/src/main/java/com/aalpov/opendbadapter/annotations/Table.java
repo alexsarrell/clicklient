@@ -9,9 +9,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Table {
 
-  String name();/*
+  String name();
 
-  String[] orderBy();
+  String[] primaryKey() default "";
 
-  String[] partitionBy();*/
+  String[] orderBy() default "";
+
+  String[] partitionBy() default "";
 }
