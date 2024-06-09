@@ -18,6 +18,8 @@ public class Column<C extends DbType<T>, T> {
     this.type = type;
   }
 
+  public convert
+
   public String getName() {
     return name;
   }

@@ -213,10 +213,10 @@ After starting the service, the library will register the annotated class and ex
 
 ```sql
 CREATE TABLE IF NOT EXISTS TestTable(
-userId UUID,
-userName String,
-age Int8,
-created Date
+    userId UUID,
+    userName String,
+    age Int8,
+    created Date
 ) ENGINE = MergeTree()
 PRIMARY KEY (userId)
 ORDER BY (userId)

@@ -249,10 +249,6 @@ interface ClickhouseTablesScan {
     + basePackages(): String[]
 }
 
-interface Comment {
-    + comment(): String
-}
-
 interface Convert {
     + converter(): Class
 }
@@ -270,5 +266,13 @@ interface PartitionBy {
 interface Table {
     + name(): String
     + engine(): String
+    + primaryKey(): String
+    + orderedBy(): String
+    + partitionBy(): String
+}
+
+interface PrimaryKey {
+    + expression(): String
+    + columns(): String[]
 }
 @enduml

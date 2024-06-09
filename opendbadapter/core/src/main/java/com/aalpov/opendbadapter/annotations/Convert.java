@@ -8,9 +8,10 @@ import java.lang.annotation.Target;
 
 @Target({METHOD, FIELD, TYPE})
 @Retention(RUNTIME)
+@SuppressWarnings("rawtypes")
 public @interface Convert {
 
-  Class converter() default void.class;
+  Class converter();
 
   String attributeName() default "";
 }

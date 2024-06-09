@@ -1,7 +1,8 @@
 package com.aalpov.opendbadapter.configuration;
 
 import com.aalpov.opendbadapter.service.ClickhouseDatabaseContext;
-import com.aalpov.opendbadapter.service.impl.BaseClickhouseClient;
+import com.aalpov.opendbadapter.service.Converter;
+import com.aalpov.opendbadapter.service.impl.ClickhouseClient;
 import com.aalpov.opendbadapter.service.impl.ClickhouseAnnotationsRegistrar;
 import com.aalpov.opendbadapter.service.impl.ClickhouseTableMapper;
 import com.aalpov.opendbadapter.service.impl.ClickhouseTablesRegistrar;
@@ -12,12 +13,14 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
+
 @Configuration
 public class ClickhouseConfiguration {
 
   @Bean
-  public static ClickhouseTableMapper<ClickhouseTable> tableMapper() {
-    return new ClickhouseTableMapper<>();
+  public static ClickhouseTableMapper<ClickhouseTable> tableMapper(List<Converter> converters) {
+    return new ClickhouseTableMapper<>(converters);
   }
 
   @Bean
@@ -38,7 +41,7 @@ public class ClickhouseConfiguration {
   }
 
   @Bean
-  public static BaseClickhouseClient clickhouseClient(
+  public static ClickhouseClient clickhouseClient(
       @Qualifier("clickhouseAnnotationsRegistrar")
           BeanDefinitionRegistryPostProcessor environment) {
     if (environment instanceof ClickhouseAnnotationsRegistrar) {

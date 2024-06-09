@@ -1,7 +1,7 @@
 package com.aalpov.clickhouseclient
 
 import com.aalpov.clickhouseclient.tables.IncomingCall
-import com.aalpov.opendbadapter.service.impl.BaseClickhouseClient
+import com.aalpov.opendbadapter.service.impl.ClickhouseClient
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
 import java.time.Instant
@@ -10,7 +10,7 @@ import kotlin.random.Random
 import kotlin.random.nextUBytes
 
 @RestController
-class AnalyticsService(private val clickhouseClient: BaseClickhouseClient) {
+class AnalyticsService(private val clickhouseClient: ClickhouseClient) {
 
     @OptIn(ExperimentalUnsignedTypes::class)
     @PostMapping("/analytics/send")

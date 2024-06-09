@@ -22,7 +22,9 @@ public class ClickhouseAnnotationsRegistrar
   ClickhouseTablesRegistrar<ClickhouseTable> registrar;
 
   public ClickhouseAnnotationsRegistrar(
-      ClickhouseTablesRegistrar<ClickhouseTable> registrar, ObjectProvider<DatabaseProperties> databaseProperties) {
+      ClickhouseTablesRegistrar<ClickhouseTable> registrar,
+      ObjectProvider<DatabaseProperties> databaseProperties
+      ) {
     this.registrar = registrar;
     this.databaseProperties = databaseProperties;
   }
@@ -51,8 +53,8 @@ public class ClickhouseAnnotationsRegistrar
     }
   }
 
-  public BaseClickhouseClient getClient() {
-    return new BaseClickhouseClient(registrar.context);
+  public ClickhouseClient getClient() {
+    return new ClickhouseClient(registrar.context);
   }
 
   @Override

@@ -1,14 +1,20 @@
 package com.aalpov.opendbadapter.table;
 
 import com.aalpov.opendbadapter.Column;
-import com.aalpov.opendbadapter.engine.Engine;
+import com.aalpov.opendbadapter.keys.Engine;
 import com.aalpov.opendbadapter.keys.Order;
 import com.aalpov.opendbadapter.keys.Partition;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
+import com.aalpov.opendbadapter.keys.PrimaryKey;
+import com.aalpov.opendbadapter.service.Converter;
 import org.jetbrains.annotations.NotNull;
 
-public class ClickhouseTable extends AbstractTable {
+public class ClickhouseTable implements Table {
 
   final Engine engine;
 
@@ -20,6 +26,10 @@ public class ClickhouseTable extends AbstractTable {
 
   final Order order;
 
+  final Map<String, Converter<?, ?, ?>> converters;
+
+  final Optional<PrimaryKey> primaryKey;
+
   final Optional<Partition> partition;
 
   public ClickhouseTable(
@@ -27,7 +37,9 @@ public class ClickhouseTable extends AbstractTable {
       @NotNull List<Column> columns,
       @NotNull Engine engine,
       @NotNull Order order,
+      PrimaryKey key,
       Partition partition,
+      Map<String, Converter<?, ?, ?>> converters,
       @NotNull Class<?> mirror) {
 
     this.name = name;
@@ -35,6 +47,27 @@ public class ClickhouseTable extends AbstractTable {
     this.columns = columns;
     this.mirror = mirror;
     this.order = order;
+    this.converters = converters;
+    this.primaryKey = Optional.ofNullable(key);
+    this.partition = Optional.ofNullable(partition);
+  }
+
+  public ClickhouseTable(
+          @NotNull String name,
+          @NotNull List<Column> columns,
+          @NotNull Engine engine,
+          @NotNull Order order,
+          PrimaryKey key,
+          Partition partition,
+          @NotNull Class<?> mirror) {
+
+    this.name = name;
+    this.engine = engine;
+    this.columns = columns;
+    this.mirror = mirror;
+    this.order = order;
+    this.converters = new HashMap<>();
+    this.primaryKey = Optional.ofNullable(key);
     this.partition = Optional.ofNullable(partition);
   }
 
@@ -54,6 +87,10 @@ public class ClickhouseTable extends AbstractTable {
     return "(" + String.join(",", names) + ")";
   }
 
+  public Map<String, Converter<?, ?, ?>> getConverters() {
+    return this.converters;
+  }
+
   public String toSqlString() {
     final StringBuilder sb = new StringBuilder();
     sb.append(name).append("(");
@@ -64,7 +101,8 @@ public class ClickhouseTable extends AbstractTable {
       }
     }
     sb.append(')');
-    sb.append("\n ENGINE = ").append(engine.toSqlString());
+    sb.append("\n ENGINE = ").append(engine);
+    sb.append("\n PRIMARY KEY ").append(primaryKey.toString());
     sb.append("\n ORDER BY ").append(order.toString());
     partition.ifPresent(pt -> sb.append("\n PARTITION BY ").append(pt));
     return sb.toString();

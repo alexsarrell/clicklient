@@ -1,7 +1,8 @@
 package com.aalpov.opendbadapter.service.impl;
 
 import com.aalpov.opendbadapter.Row;
-import com.aalpov.opendbadapter.service.ClickhouseClient;
+import com.aalpov.opendbadapter.service.Converter;
+import com.aalpov.opendbadapter.service.DatabaseClient;
 import com.aalpov.opendbadapter.service.DatabaseContext;
 import com.aalpov.opendbadapter.table.ClickhouseTable;
 import java.lang.reflect.Field;
@@ -13,20 +14,28 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.Assert;
 
-public class BaseClickhouseClient implements ClickhouseClient {
+@SuppressWarnings({"unchecked", "rawtypes"})
+public class ClickhouseClient implements DatabaseClient {
 
   DatabaseContext<ClickhouseTable> context;
 
-  private final ExecutorService queryExecutor = Executors.newFixedThreadPool(
-          10, new ThreadFactoryBuilder()
-                  .setNameFormat("ClickhouseClient-thread-%d")
-                  .setPriority(Thread.NORM_PRIORITY)
-                  .build()
-  );
+  private final ExecutorService queryExecutor;
 
-  public BaseClickhouseClient(DatabaseContext<ClickhouseTable> context) {
+  public ClickhouseClient(DatabaseContext<ClickhouseTable> context, ExecutorService queryExecutor) {
     this.context = context;
+    this.queryExecutor = queryExecutor;
   }
+
+  public ClickhouseClient(DatabaseContext<ClickhouseTable> context) {
+    this.context = context;
+    this.queryExecutor = Executors.newFixedThreadPool(
+            10, new ThreadFactoryBuilder()
+                    .setNameFormat("ClickhouseClient-thread-%d")
+                    .setPriority(Thread.NORM_PRIORITY)
+                    .build()
+    );
+  }
+
 
   @Override
   public void insert(Object row) {
@@ -34,7 +43,7 @@ public class BaseClickhouseClient implements ClickhouseClient {
 
     queryExecutor.submit(() -> {
       try {
-        var fields = convertToMap(row);
+        var fields = convertToMap(row, mirror);
         context.insert(new Row(fields), mirror);
       } catch (IllegalAccessException ex) {
         ex.printStackTrace();
@@ -46,7 +55,15 @@ public class BaseClickhouseClient implements ClickhouseClient {
   public void batchInsert(Collection<Object> rows) {
     Assert.notEmpty(rows, "Batch for bulk insert must not be empty");
 
-    ClickhouseTable mirror = context.getMirror(rows.iterator().next().getClass());
+    var first = rows.iterator().next().getClass();
+
+    ClickhouseTable mirror = context.getMirror(first);
+    for (Object obj : rows) {
+      if (!first.isAssignableFrom(obj.getClass())) {
+        throw new IllegalArgumentException("Rows for batch insert must have the same type " + rows);
+      }
+      Assert.notNull(obj, "Row for batch insert must not be null " + obj);
+    }
     queryExecutor.submit(() -> batchInsert(rows, mirror));
   }
 
@@ -57,7 +74,7 @@ public class BaseClickhouseClient implements ClickhouseClient {
                       .map(
                               row -> {
                                 try {
-                                  return new Row(convertToMap(row));
+                                  return new Row(convertToMap(row, mirror));
                                 } catch (IllegalAccessException e) {
                                   throw new RuntimeException(e);
                                 }
@@ -73,16 +90,25 @@ public class BaseClickhouseClient implements ClickhouseClient {
     batchInsert(Arrays.stream(rows).toList());
   }
 
-  private Map<String, Object> convertToMap(Object obj) throws IllegalAccessException {
+  private Map<String, Object> convertToMap(Object obj, ClickhouseTable mirror) throws IllegalAccessException {
     Map<String, Object> map = new HashMap<>();
     Class<?> clazz = obj.getClass();
 
     Field[] fields = clazz.getDeclaredFields();
     for (Field field : fields) {
       field.setAccessible(true);
-      map.put(field.getName(), field.get(obj));
+      map.put(field.getName(), withConversion(field.getName(), field.get(obj), mirror));
     }
 
     return map;
+  }
+
+  private Object withConversion(String name, Object field, ClickhouseTable mirror) {
+    if (mirror.getConverters().containsKey(name)) {
+      Converter converter = mirror.getConverters().get(name);
+      return converter.convert(field);
+    } else {
+      return field;
+    }
   }
 }

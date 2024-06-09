@@ -1,5 +1,12 @@
 package com.aalpov.opendbadapter.service;
 
-public interface Converter<Type, Target> {
-    Target convert(Type value);
+import com.aalpov.opendbadapter.type.DbType;
+
+import java.lang.reflect.Field;
+
+public interface Converter<Source, Target, Type extends DbType<Target>> {
+
+    Target convert(Source value);
+
+    Type convertType(Field field);
 }

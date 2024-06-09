@@ -7,15 +7,10 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Table {
+public @interface PrimaryKey {
 
-  String name();
+    String expression() default "";
 
-  String[] primaryKey() default "";
-
-  String[] orderBy() default "";
-
-  String[] partitionBy() default "";
-
-  String engine() default "MergeTree()";
+    String[] columns() default {};
 }
+

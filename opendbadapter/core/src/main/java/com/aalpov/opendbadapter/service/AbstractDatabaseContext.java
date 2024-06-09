@@ -2,7 +2,7 @@ package com.aalpov.opendbadapter.service;
 
 import com.aalpov.opendbadapter.Row;
 import com.aalpov.opendbadapter.configuration.DatabaseProperties;
-import com.aalpov.opendbadapter.table.AbstractTable;
+import com.aalpov.opendbadapter.table.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +17,7 @@ interface ConnectionConsumer {
   void accept(Connection connection) throws SQLException;
 }
 
-public abstract class AbstractDatabaseContext<T extends AbstractTable>
+public abstract class AbstractDatabaseContext<T extends Table>
     implements DatabaseContext<T> {
 
   private static final Logger logger = LoggerFactory.getLogger(AbstractDatabaseContext.class);

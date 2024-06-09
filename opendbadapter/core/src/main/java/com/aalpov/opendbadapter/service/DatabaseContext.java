@@ -2,11 +2,11 @@ package com.aalpov.opendbadapter.service;
 
 import com.aalpov.opendbadapter.Row;
 import com.aalpov.opendbadapter.configuration.DatabaseProperties;
-import com.aalpov.opendbadapter.table.AbstractTable;
+import com.aalpov.opendbadapter.table.Table;
 import java.util.Collection;
 import java.util.List;
 
-public interface DatabaseContext<T extends AbstractTable> {
+public interface DatabaseContext<T extends Table> {
 
   void insert(Row row, T table);
 
